@@ -17,6 +17,29 @@ Store encrypted notes on Shelby decentralized storage. AES-256-GCM encryption wi
 
 No server ever sees your data. Encryption happens in your browser.
 
+### Key Derivation (How Your Wallet Unlocks the Vault)
+
+```
+1. signMessage("ShelbySafe-Vault-v1") → signature (64 bytes)
+2. SHA-256(signature) → 256-bit hash
+3. Import hash as AES-GCM key via Web Crypto API
+```
+
+- The encryption key is **never stored** — it's derived deterministically from your wallet signature every time
+- Same wallet + same message = same key = same notes, any device
+- Different wallet → different key → cannot decrypt. Even Shelby nodes only see ciphertext
+- **Tradeoff:** If your wallet is compromised, the vault can be unlocked. Mitigation: use a separate cold wallet for your vault (not your daily trading wallet)
+
+## Features
+
+- 🔐 AES-256-GCM client-side encryption
+- 🔑 Wallet-derived keys (no password to remember)
+- 📦 Decentralized storage on Shelby Protocol
+- 🔒 Auto-lock after 5 minutes of inactivity
+- 📤 Export all notes (decrypted JSON download)
+- 📱 Mobile responsive
+- ✅ Encryption tests (vitest)
+
 ## Tech Stack
 
 - **Next.js 16** (Turbopack) + React 19 + TypeScript
@@ -24,6 +47,7 @@ No server ever sees your data. Encryption happens in your browser.
 - **@aptos-labs/wallet-adapter-react** — Petra/Nightly/OKX wallet connection
 - **@shelby-protocol/sdk** — Decentralized blob storage
 - **Web Crypto API** — AES-256-GCM client-side encryption
+- **Vitest** — Unit tests for encryption/decryption
 - **Vercel** — Deployment
 
 ## Getting Started
@@ -43,6 +67,12 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Copy `.env.example` to `.env.local` and add your key.
 
+### Tests
+
+```bash
+npm test
+```
+
 ## Upload (Save Notes)
 
 Note upload requires:
@@ -57,17 +87,19 @@ Read operations (list + download + decrypt) work fully in the browser.
 ## Project Structure
 
 ```
+├── __tests__/
+│   └── encryption.test.ts  # Roundtrip, tamper, unicode tests
 ├── app/
-│   ├── layout.tsx        # AptosWalletAdapterProvider wrapper
-│   ├── page.tsx          # Main page → Vault
-│   └── globals.css       # Tailwind v4 + custom animations
+│   ├── layout.tsx           # AptosWalletAdapterProvider wrapper
+│   ├── page.tsx             # Main page → Vault
+│   └── globals.css          # Tailwind v4 + custom animations
 ├── components/
 │   ├── wallet-provider.tsx  # Wallet adapter bridge
 │   ├── connect-wallet.tsx   # Multi-wallet selector
 │   └── vault.tsx            # Main vault logic + UI
 ├── lib/
-│   ├── encryption.ts     # AES-GCM encrypt/decrypt
-│   ├── shelby.ts         # ShelbyClient wrapper
+│   ├── encryption.ts        # AES-GCM encrypt/decrypt + key derivation
+│   ├── shelby.ts            # ShelbyClient wrapper + error classification
 │   └── types.ts
 └── package.json
 ```

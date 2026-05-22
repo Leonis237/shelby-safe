@@ -5,6 +5,7 @@ import {
   Ed25519PrivateKey,
   Network,
 } from "@aptos-labs/ts-sdk";
+import type { UploadError, ErrorCode } from "./types";
 
 const SHELBYNET_RPC = "https://api.shelbynet.shelby.xyz/shelby";
 
@@ -20,18 +21,64 @@ export function getShelbyClient(
   }>
 ): ShelbyClient {
   if (!client) {
-    client = new ShelbyClient({
+    const cfg: any = {
       network: Network.SHELBYNET,
       apiKey: apiKey,
       rpc: { baseUrl: SHELBYNET_RPC },
-      signChallengeHandler: signChallengeHandler as any,
-    });
+    };
+    if (signChallengeHandler) cfg.signChallengeHandler = signChallengeHandler;
+    client = new ShelbyClient(cfg);
   }
   return client;
 }
 
 export function resetShelbyClient(): void {
   client = null;
+}
+
+/** Classify raw errors into structured UploadError */
+export function classifyError(e: unknown): UploadError {
+  const msg = e instanceof Error ? e.message : String(e ?? "Unknown error");
+  const lower = msg.toLowerCase();
+
+  let code: ErrorCode = "UNKNOWN";
+  let recoverable = true;
+
+  if (lower.includes("rate") || lower.includes("too many") || lower.includes("429")) {
+    code = "RATE_LIMITED";
+    recoverable = true;
+  } else if (lower.includes("insufficient") || lower.includes("not enough") || lower.includes("fund")) {
+    code = "INSUFFICIENT_FUNDS";
+    recoverable = false;
+  } else if (lower.includes("network") || lower.includes("fetch") || lower.includes("timeout") || lower.includes("econnrefused")) {
+    code = "NETWORK_ERROR";
+    recoverable = true;
+  } else if (lower.includes("invalid_auth") || lower.includes("unauthorized") || lower.includes("403")) {
+    code = "INVALID_AUTH";
+    recoverable = false;
+  } else if (lower.includes("decrypt") || lower.includes("wrong wallet")) {
+    code = "DECRYPT_FAILED";
+    recoverable = false;
+  }
+
+  return { message: msg, code, recoverable };
+}
+
+export function errorToUserMessage(err: UploadError): string {
+  switch (err.code) {
+    case "RATE_LIMITED":
+      return "Too many requests. Wait a moment and try again.";
+    case "INSUFFICIENT_FUNDS":
+      return "Not enough APT or ShelbyUSD. Fund your wallet on ShelbyNet first.";
+    case "NETWORK_ERROR":
+      return "Network error. Check your connection and retry.";
+    case "INVALID_AUTH":
+      return "Auth failed. Try reconnecting your wallet.";
+    case "DECRYPT_FAILED":
+      return "Decrypt failed. Wrong wallet or corrupted data.";
+    default:
+      return err.message;
+  }
 }
 
 /**
@@ -70,7 +117,7 @@ export async function uploadEncryptedBlob(params: {
 }
 
 /**
- * List all blobs for an account.
+ * List all blobs for an account (with metadata).
  */
 export async function listAccountBlobs(accountAddress: string) {
   const c = getShelbyClient();
@@ -81,6 +128,8 @@ export async function listAccountBlobs(accountAddress: string) {
     name: b.name,
     size: Number(b.size),
     expirationMicros: Number(b.expirationMicros),
+    /** Last 8 chars of blob name as short ID */
+    shortId: b.name.slice(-8),
   }));
 }
 
