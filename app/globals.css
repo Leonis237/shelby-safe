@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════
+   MAXIMALISM / DOPAMINE — Shelby Brand Edition
+   ═══════════════════════════════════════════════════════ */
+
+@theme inline {
+  --font-heading: var(--font-outfit);
+  --font-body: var(--font-dm-sans);
+  --font-display: var(--font-bangers);
+  --font-mono: var(--font-dm-mono);
+  --color-shelby-pink: #FF71C6;
+  --color-shelby-pink-soft: #FF8AC4;
+  --color-shelby-dark: #2B1E16;
+  --color-cyan: #00E5FF;
+  --color-gold: #D18800;
+  --color-gold-bright: #FFD100;
+  --color-purple: #7B2FFF;
+  --color-surface: #1A1218;
+}
+
+/* ═══ BASE ═══ */
+body {
+  background: #0A0A0A;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(255, 113, 198, 0.4);
+  color: #FFFFFF;
+}
+
+*:focus-visible {
+  outline: 4px dashed #FFD100;
+  outline-offset: 4px;
+}
+
+/* ═══ PATTERNS ═══ */
+.pattern-dots {
+  background-image: radial-gradient(circle, rgba(255,113,198,0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.pattern-dots-cyan {
+  background-image: radial-gradient(circle, rgba(0,229,255,0.25) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.pattern-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 12px,
+    rgba(255, 113, 198, 0.06) 12px,
+    rgba(255, 113, 198, 0.06) 24px
+  );
+}
+.pattern-stripes-gold {
+  background-image: repeating-linear-gradient(
+    -30deg,
+    transparent,
+    transparent 16px,
+    rgba(209, 136, 0, 0.05) 16px,
+    rgba(209, 136, 0, 0.05) 32px
+  );
+}
+.pattern-checker {
+  background-image: conic-gradient(
+    from 90deg at 1px 1px,
+    transparent 90deg,
+    rgba(0, 229, 255, 0.04) 0
+  );
+  background-size: 40px 40px;
+}
+
+/* ═══ TEXT SHADOWS ═══ */
+.text-shadow-single {
+  text-shadow: 2px 2px 0px #7B2FFF;
+}
+.text-shadow-double {
+  text-shadow: 2px 2px 0px #7B2FFF, 4px 4px 0px #FF71C6;
+}
+.text-shadow-triple {
+  text-shadow: 2px 2px 0px #7B2FFF, 4px 4px 0px #FF71C6, 6px 6px 0px #00E5FF;
+}
+.text-shadow-mega {
+  text-shadow: 4px 4px 0px #7B2FFF, 8px 8px 0px #FF71C6, 12px 12px 0px #00E5FF, 16px 16px 0px #D18800;
+}
+
+/* ═══ BOX SHADOWS ═══ */
+.shadow-glow-pink {
+  box-shadow: 0 0 20px rgba(255, 113, 198, 0.5), 0 0 40px rgba(255, 113, 198, 0.25);
+}
+.shadow-glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.5), 0 0 40px rgba(0, 229, 255, 0.25);
+}
+.shadow-stacked {
+  box-shadow: 8px 8px 0 #D18800, 16px 16px 0 #FF71C6;
+}
+.shadow-stacked-cyan {
+  box-shadow: 8px 8px 0 #FF71C6, 16px 16px 0 #00E5FF;
+}
+.shadow-stacked-triple {
+  box-shadow: 6px 6px 0 #D18800, 12px 12px 0 #FF71C6, 18px 18px 0 #7B2FFF;
+}
+.shadow-combined {
+  box-shadow: 0 0 30px rgba(255, 113, 198, 0.5), 8px 8px 0 #D18800, 16px 16px 0 #FF71C6;
+}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-16px) rotate(3deg); }
+}
+@keyframes float-reverse {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(16px) rotate(-3deg); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,113,198,0.5); }
+  50% { box-shadow: 0 0 40px rgba(255,113,198,0.7), 0 0 60px rgba(0,229,255,0.4); }
+}
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes dash-shift {
+  to { stroke-dashoffset: -40; }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-reverse { animation: float-reverse 5s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-gradient-shift { animation: gradient-shift 4s ease infinite; }
+.animate-spin-slow { animation: spin-slow 20s linear infinite; }
+.animate-wiggle { animation: wiggle 1s ease-in-out infinite; }
+.animate-bounce-subtle { animation: bounce-subtle 2s ease-in-out infinite; }
+.animate-dash { animation: dash-shift 2s linear infinite; }
+
+/* ═══ GRADIENT TEXT ═══ */
+.gradient-text {
+  background: linear-gradient(90deg, #FF71C6, #00E5FF, #D18800, #FF71C6);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══ REDUCED MOTION ═══ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-float-reverse,
+  .animate-pulse-glow,
+  .animate-gradient-shift,
+  .animate-spin-slow,
+  .animate-wiggle,
+  .animate-bounce-subtle {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  *, *::before, *::after {
+    transition-duration: 0.15s !important;
+  }
+}
