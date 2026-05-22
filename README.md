@@ -80,7 +80,7 @@ Note upload requires:
 - **ShelbyUSD** for storage fees
 - **Wallet transaction signing** (registerBlob on-chain)
 
-Currently, upload via browser wallet is limited — the wallet adapter's `signAndSubmitTransaction` integration is in progress. For now, use **Shelby CLI** to upload encrypted blobs.
+Upload currently requires **Shelby CLI** (due to early access restrictions on ShelbyNet — testnet APT + ShelbyUSD needed for `registerBlob` gas). Full browser wallet upload (`signAndSubmitTransaction`) is in progress — blocked by faucet access.
 
 Read operations (list + download + decrypt) work fully in the browser.
 

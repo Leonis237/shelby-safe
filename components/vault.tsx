@@ -722,6 +722,16 @@ export function Vault() {
               Shelby<span className="text-[#FF71C6]">Safe</span>
             </h1>
             <div className="flex items-center gap-3 mt-1">
+              {/* Lock status indicator */}
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full animate-pulse"
+                      style={{ backgroundColor: cryptoKey ? "#00E5FF" : "#FF71C6" }} />
+                <span className="font-[family-name:var(--font-dm-mono)] text-[9px] md:text-[10px] uppercase tracking-[0.25em] font-bold"
+                      style={{ color: cryptoKey ? "#00E5FF" : "#FF71C6" }}>
+                  {cryptoKey ? "Unlocked" : "Locked"}
+                </span>
+              </span>
+              <span className="text-white/10">|</span>
               <p className="font-[family-name:var(--font-dm-mono)] text-[9px] md:text-[10px] text-[#D18800] uppercase tracking-[0.25em] font-bold">
                 {notes.length} {notes.length === 1 ? "note" : "notes"}
               </p>
@@ -734,6 +744,17 @@ export function Vault() {
                                  text-[10px] text-white/50 font-[family-name:var(--font-body)] leading-relaxed
                                  opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
                   Key = SHA-256(wallet signature). Same wallet always derives same key. No key stored anywhere.
+                </span>
+              </span>
+              {/* Cold wallet warning */}
+              <span className="group relative cursor-help hidden sm:inline-flex">
+                <span className="font-[family-name:var(--font-dm-mono)] text-[9px] text-[#D18800]/50 uppercase tracking-wider border border-[#D18800]/20 rounded-full px-2 py-0.5">
+                  ⚠
+                </span>
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3 bg-[#1A1218] border-2 border-[#D18800]/30 rounded-xl
+                                 text-[10px] text-white/50 font-[family-name:var(--font-body)] leading-relaxed
+                                 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                  If this wallet is compromised, the vault can be unlocked. For maximum security, use a separate cold wallet just for your vault — not your daily trading wallet.
                 </span>
               </span>
             </div>
