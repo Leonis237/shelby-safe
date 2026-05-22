@@ -6,6 +6,8 @@ Store encrypted notes on Shelby decentralized storage. AES-256-GCM encryption wi
 
 **Live:** [shelby-safe.vercel.app](https://shelby-safe.vercel.app)
 
+![ShelbySafe Landing Page](public/screenshot-landing.png)
+
 ## How It Works
 
 1. **Connect** your Aptos wallet (Petra, Nightly, OKX)
