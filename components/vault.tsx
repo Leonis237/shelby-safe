@@ -567,14 +567,14 @@ export function Vault() {
         <div className="fixed inset-0 pattern-stripes z-0 pointer-events-none" aria-hidden="true" />
         <div className="fixed inset-0 pattern-dots z-0 pointer-events-none" aria-hidden="true" />
 
-        <nav className="relative z-20 max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-5 flex items-center justify-between">
-          <span className="font-[family-name:var(--font-heading)] font-black text-white text-2xl md:text-3xl tracking-tight uppercase">
+        <nav className="relative z-20 max-w-[88rem] mx-auto px-6 md:px-10 py-4 md:py-6 flex items-center justify-between">
+          <span className="font-[family-name:var(--font-heading)] font-black text-white text-3xl md:text-4xl lg:text-5xl tracking-tight uppercase">
             Shelby<span className="text-[#FF71C6]">Safe</span>
           </span>
           <ConnectWallet />
         </nav>
 
-        <section className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-16 md:pt-24 pb-16 md:pb-28">
+        <section className="relative z-10 max-w-[88rem] mx-auto px-6 md:px-10 pt-16 md:pt-24 pb-16 md:pb-28">
           <FloatingShapes />
 
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-0" aria-hidden="true">
@@ -583,40 +583,42 @@ export function Vault() {
             </span>
           </div>
 
-          <div className="relative z-10 max-w-3xl">
-            <div className="flex items-center gap-3 mb-6 md:mb-8">
-              <span className="w-10 md:w-12 h-1 bg-[#FF71C6] rounded-full animate-pulse-glow" />
-              <p className="font-[family-name:var(--font-dm-mono)] text-[10px] md:text-xs text-[#D18800] uppercase tracking-[0.25em] font-bold">
-                Shelby Protocol / Aptos
+          <div className="relative z-10 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div>
+              <div className="flex items-center gap-3 mb-6 md:mb-8">
+                <span className="w-10 md:w-12 h-1 bg-[#FF71C6] rounded-full animate-pulse-glow" />
+                <p className="font-[family-name:var(--font-dm-mono)] text-[10px] md:text-xs text-[#D18800] uppercase tracking-[0.25em] font-bold">
+                  Shelby Protocol / Aptos
+                </p>
+              </div>
+
+              <h1 className="font-[family-name:var(--font-heading)] font-black text-5xl md:text-7xl lg:text-7xl xl:text-8xl text-white uppercase
+                             tracking-tighter leading-[0.9] mb-6 md:mb-8 text-shadow-mega">
+                Your vault.<br />
+                <span className="gradient-text animate-gradient-shift">Your keys.</span><br />
+                Zero trust.
+              </h1>
+
+              <p className="text-white/40 text-base md:text-lg lg:text-xl max-w-xl mb-8 md:mb-10 leading-relaxed font-[family-name:var(--font-body)]">
+                Encrypted storage on Shelby decentralized infrastructure.
+                No server ever sees your data. Only your wallet can decrypt.
               </p>
+
+              <ConnectWallet />
             </div>
 
-            <h1 className="font-[family-name:var(--font-heading)] font-black text-4xl md:text-6xl lg:text-8xl text-white uppercase
-                           tracking-tighter leading-[0.9] mb-6 md:mb-8 text-shadow-mega">
-              Your vault.<br />
-              <span className="gradient-text animate-gradient-shift">Your keys.</span><br />
-              Zero trust.
-            </h1>
-
-            <p className="text-white/40 text-sm md:text-lg lg:text-xl max-w-lg mb-8 md:mb-10 leading-relaxed font-[family-name:var(--font-body)]">
-              Encrypted storage on Shelby decentralized infrastructure.
-              No server ever sees your data. Only your wallet can decrypt.
-            </p>
-
-            <ConnectWallet />
-          </div>
-
-          <div className="hidden lg:block absolute right-10 top-1/2 -translate-y-1/2 z-0 pointer-events-none" aria-hidden="true">
-            <div className="w-72 h-72 rounded-[3rem] bg-[#1A1218] border-4 border-dashed border-[#FF71C6]/30
-                            flex items-center justify-center shadow-glow-pink animate-float">
-              <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#FF71C6" strokeWidth="1.5" className="drop-shadow-[0_0_20px_rgba(255,113,198,0.4)]">
-                <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /><circle cx="12" cy="16" r="1" />
-              </svg>
+            <div className="hidden lg:flex justify-center xl:justify-end z-0 pointer-events-none" aria-hidden="true">
+              <div className="w-80 h-80 xl:w-[26rem] xl:h-[26rem] rounded-[3rem] bg-[#1A1218] border-4 border-dashed border-[#FF71C6]/30
+                              flex items-center justify-center shadow-glow-pink animate-float">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#FF71C6" strokeWidth="1.5" className="w-32 h-32 xl:w-44 xl:h-44 drop-shadow-[0_0_20px_rgba(255,113,198,0.4)]">
+                  <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /><circle cx="12" cy="16" r="1" />
+                </svg>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pb-16 md:pb-24">
+        <section className="relative z-10 max-w-[88rem] mx-auto px-6 md:px-10 pb-16 md:pb-24">
           <div className="mb-10 md:mb-16">
             <h2 className="font-[family-name:var(--font-heading)] font-black text-3xl md:text-5xl lg:text-6xl text-white uppercase tracking-tighter text-shadow-triple">
               What you can lock
@@ -632,7 +634,7 @@ export function Vault() {
           </div>
         </section>
 
-        <section className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pb-16 md:pb-24">
+        <section className="relative z-10 max-w-[88rem] mx-auto px-6 md:px-10 pb-16 md:pb-24">
           <div className="relative rounded-[2.5rem] overflow-hidden">
             <div className="absolute inset-0 pattern-stripes-gold pattern-checker z-0 pointer-events-none" aria-hidden="true" />
             <div className="relative z-10 max-w-lg px-4 md:px-0">

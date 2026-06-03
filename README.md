@@ -12,7 +12,7 @@ Store encrypted notes on Shelby decentralized storage. AES-256-GCM encryption wi
 
 1. **Connect** your Aptos wallet (Petra, Nightly, OKX)
 2. **Unlock** — sign a message with your wallet to derive your encryption key
-3. **Create** encrypted notes — encrypted client-side, stored on Shelby Protocol
+3. **Create** encrypted notes — encrypted client-side, registered on-chain, then stored on Shelby Protocol
 4. **Access anywhere** — same wallet = same key = same notes
 
 No server ever sees your data. Encryption happens in your browser.
@@ -73,16 +73,23 @@ Copy `.env.example` to `.env.local` and add your key.
 npm test
 ```
 
-## Upload (Save Notes)
+## Upload & Download
 
-Note upload requires:
-- **APT** on ShelbyNet (Aptos testnet) for gas
+**Reads** (list + download + decrypt) work fully in the browser today.
+
+**Writes** (saving a note) are implemented end-to-end with browser wallet signing — no CLI required:
+
+1. The note is encrypted client-side (AES-256-GCM)
+2. `generateCommitments()` builds the blob's Merkle root
+3. `register_blob` is signed and submitted by your wallet via `signAndSubmitTransaction` (your wallet pays gas + storage)
+4. The encrypted bytes are uploaded to the Shelby RPC via `putBlob`
+
+To run a write you need, **on ShelbyNet** (a dedicated Shelby network, separate from Aptos mainnet/testnet/devnet):
+
+- **APT** for transaction gas
 - **ShelbyUSD** for storage fees
-- **Wallet transaction signing** (registerBlob on-chain)
 
-Upload currently requires **Shelby CLI** (due to early access restrictions on ShelbyNet — testnet APT + ShelbyUSD needed for `registerBlob` gas). Full browser wallet upload (`signAndSubmitTransaction`) is in progress — blocked by faucet access.
-
-Read operations (list + download + decrypt) work fully in the browser.
+ShelbyNet is currently early-access, so funding via the faucet requires approved access.
 
 ## Project Structure
 
@@ -99,7 +106,7 @@ Read operations (list + download + decrypt) work fully in the browser.
 │   └── vault.tsx            # Main vault logic + UI
 ├── lib/
 │   ├── encryption.ts        # AES-GCM encrypt/decrypt + key derivation
-│   ├── shelby.ts            # ShelbyClient wrapper + error classification
+│   ├── shelby.ts            # ShelbyClient + wallet-signed upload + error classification
 │   └── types.ts
 └── package.json
 ```
