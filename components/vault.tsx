@@ -568,7 +568,7 @@ export function Vault() {
         <div className="fixed inset-0 pattern-dots z-0 pointer-events-none" aria-hidden="true" />
 
         <nav className="relative z-20 max-w-[88rem] mx-auto px-6 md:px-10 py-4 md:py-6 flex items-center justify-between">
-          <span className="font-[family-name:var(--font-heading)] font-black text-white text-3xl md:text-4xl lg:text-5xl tracking-tight uppercase">
+          <span className="font-[family-name:var(--font-heading)] font-black text-white text-3xl md:text-5xl lg:text-6xl 2xl:text-7xl tracking-tight uppercase">
             Shelby<span className="text-[#FF71C6]">Safe</span>
           </span>
           <ConnectWallet />
@@ -583,7 +583,7 @@ export function Vault() {
             </span>
           </div>
 
-          <div className="relative z-10 grid lg:grid-cols-[1.35fr_1fr] gap-10 lg:gap-12 items-center">
+          <div className="relative z-10 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div>
               <div className="flex items-center gap-3 mb-6 md:mb-8">
                 <span className="w-10 md:w-12 h-1 bg-[#FF71C6] rounded-full animate-pulse-glow" />
@@ -592,7 +592,7 @@ export function Vault() {
                 </p>
               </div>
 
-              <h1 className="font-[family-name:var(--font-heading)] font-black text-5xl md:text-7xl lg:text-7xl xl:text-8xl 2xl:text-[7rem] text-white uppercase
+              <h1 className="font-[family-name:var(--font-heading)] font-black text-5xl md:text-7xl lg:text-7xl xl:text-8xl text-white uppercase
                              tracking-tighter leading-[0.9] mb-6 md:mb-8 text-shadow-mega">
                 Your vault.<br />
                 <span className="gradient-text animate-gradient-shift">Your keys.</span><br />
