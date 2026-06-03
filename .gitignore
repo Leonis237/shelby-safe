@@ -43,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local dev notes / tooling (kept locally, not published)
+CLAUDE.md
+AGENTS.md
+.codegraph/
