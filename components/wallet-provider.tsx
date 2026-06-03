@@ -1,6 +1,7 @@
 "use client";
 
 import { Network } from "@aptos-labs/ts-sdk";
+import type { InputGenerateTransactionPayloadData } from "@aptos-labs/ts-sdk";
 import {
   AptosWalletAdapterProvider,
   useWallet as useAdapterWallet,
@@ -21,6 +22,10 @@ interface WalletState {
     message: string;
     nonce: string;
   }) => Promise<{ signature: string | Uint8Array; fullMessage: string }>;
+  /** Sign + submit an Aptos transaction via the connected wallet. */
+  signAndSubmit: (
+    payload: InputGenerateTransactionPayloadData
+  ) => Promise<{ hash: string }>;
 }
 
 const WalletCtx = createContext<WalletState>({
@@ -29,6 +34,9 @@ const WalletCtx = createContext<WalletState>({
   connect: () => {},
   disconnect: () => {},
   signMessage: async () => ({ signature: "", fullMessage: "" }),
+  signAndSubmit: async () => {
+    throw new Error("Wallet not connected");
+  },
 });
 
 export function useWallet() {
@@ -43,6 +51,7 @@ function WalletBridge({ children }: { children: ReactNode }) {
     connect: adapterConnect,
     disconnect: adapterDisconnect,
     signMessage: adapterSignMessage,
+    signAndSubmitTransaction: adapterSignAndSubmit,
   } = useAdapterWallet();
 
   const ourAccount: WalletAccount | null =
@@ -85,6 +94,14 @@ function WalletBridge({ children }: { children: ReactNode }) {
     [adapterSignMessage]
   );
 
+  const ourSignAndSubmit = useCallback(
+    async (payload: InputGenerateTransactionPayloadData) => {
+      const result = await adapterSignAndSubmit({ data: payload });
+      return { hash: (result as { hash: string }).hash };
+    },
+    [adapterSignAndSubmit]
+  );
+
   return (
     <WalletCtx.Provider
       value={{
@@ -93,6 +110,7 @@ function WalletBridge({ children }: { children: ReactNode }) {
         connect: ourConnect,
         disconnect: adapterDisconnect,
         signMessage: ourSignMessage,
+        signAndSubmit: ourSignAndSubmit,
       }}
     >
       {children}

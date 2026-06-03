@@ -4,7 +4,7 @@ import { useWallet } from "@/components/wallet-provider";
 import { ConnectWallet } from "@/components/connect-wallet";
 import { deriveKey, encrypt, decrypt, signForEncryption } from "@/lib/encryption";
 import {
-  getShelbyClient, createMinimalAccount, uploadEncryptedBlob,
+  uploadEncryptedBlob,
   listAccountBlobs, downloadBlob, parseBlobName, generateBlobName, resetShelbyClient,
   classifyError, errorToUserMessage,
 } from "@/lib/shelby";
@@ -29,16 +29,6 @@ function sigToHex(sig: unknown): string {
   if (sig instanceof Uint8Array) return Array.from(sig).map(b => b.toString(16).padStart(2, "0")).join("");
   if (Array.isArray(sig) && sig.every(v => typeof v === "number")) return sig.map((b: number) => b.toString(16).padStart(2, "0")).join("");
   return String(sig ?? "");
-}
-
-function toUint8Array(sig: unknown): Uint8Array {
-  if (sig instanceof Uint8Array) return sig;
-  if (Array.isArray(sig) && sig.every(v => typeof v === "number")) return new Uint8Array(sig);
-  const hex = typeof sig === "string" ? (sig.startsWith("0x") ? sig.slice(2) : sig) : "";
-  if (!hex) return new Uint8Array(0);
-  const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
-  return bytes;
 }
 
 function getCachedSig(addr: string): string | null {
@@ -383,7 +373,7 @@ function FeatureCard({ title, desc, icon, index }: { title: string; desc: string
    ═══════════════════════════════════════════════════════ */
 
 export function Vault() {
-  const { connected, account, signMessage } = useWallet();
+  const { connected, account, signMessage, signAndSubmit } = useWallet();
   const [cryptoKey, setCryptoKey] = useState<CryptoKey | null>(null);
   const [notes, setNotes] = useState<VaultNote[]>([]);
   const [loading, setLoading] = useState(false);
@@ -434,14 +424,8 @@ export function Vault() {
     const addr = account.address;
     const cached = getCachedSig(addr);
 
-    const signHandler = async (_acct: any, challenge: string) => {
-      const r = await signMessage({ message: challenge, nonce: Date.now().toString() });
-      return { challenge, signature: toUint8Array(r.signature), publicKey: toUint8Array(account.publicKey) };
-    };
-
     if (cached) {
       setCryptoKey(await deriveKey(cached));
-      getShelbyClient(undefined, signHandler);
       setLocked(false);
       return;
     }
@@ -452,7 +436,6 @@ export function Vault() {
       });
       setCachedSig(addr, sigHex);
       setCryptoKey(await deriveKey(sigHex));
-      getShelbyClient(undefined, signHandler);
       setLocked(false);
     } catch (e) {
       const classified = classifyError(e);
@@ -504,7 +487,8 @@ export function Vault() {
       await uploadEncryptedBlob({
         data: new TextEncoder().encode(encrypted),
         blobName: generateBlobName(),
-        account: createMinimalAccount(account.address, sigToHex(account.publicKey)),
+        accountAddress: account.address,
+        signAndSubmit,
         ttlDays: 365,
       });
       setNewTitle(""); setNewContent(""); setShowNew(false);

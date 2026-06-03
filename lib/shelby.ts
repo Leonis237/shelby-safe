@@ -1,33 +1,26 @@
-import { ShelbyClient } from "@shelby-protocol/sdk/browser";
 import {
-  Account,
-  AccountAddress,
-  Ed25519PrivateKey,
-  Network,
-} from "@aptos-labs/ts-sdk";
+  ShelbyClient,
+  ShelbyBlobClient,
+  generateCommitments,
+  createDefaultErasureCodingProvider,
+  defaultErasureCodingConfig,
+  type ErasureCodingProvider,
+} from "@shelby-protocol/sdk/browser";
+import { AccountAddress, Network } from "@aptos-labs/ts-sdk";
+import type { InputGenerateTransactionPayloadData } from "@aptos-labs/ts-sdk";
 import type { UploadError, ErrorCode } from "./types";
 
 const SHELBYNET_RPC = "https://api.shelbynet.shelby.xyz/shelby";
 
 let client: ShelbyClient | null = null;
 
-export function getShelbyClient(
-  apiKey?: string,
-  signChallengeHandler?: (account: Account, challenge: string) => Promise<{
-    challenge: string;
-    signature: Uint8Array;
-    publicKey: Uint8Array;
-    authScheme?: string;
-  }>
-): ShelbyClient {
+export function getShelbyClient(apiKey?: string): ShelbyClient {
   if (!client) {
-    const cfg: any = {
+    client = new ShelbyClient({
       network: Network.SHELBYNET,
-      apiKey: apiKey,
+      apiKey,
       rpc: { baseUrl: SHELBYNET_RPC },
-    };
-    if (signChallengeHandler) cfg.signChallengeHandler = signChallengeHandler;
-    client = new ShelbyClient(cfg);
+    });
   }
   return client;
 }
@@ -35,6 +28,21 @@ export function getShelbyClient(
 export function resetShelbyClient(): void {
   client = null;
 }
+
+/**
+ * Erasure-coding provider used to compute blob commitments.
+ * Created once and reused — initialization loads a WASM backend.
+ */
+let providerPromise: Promise<ErasureCodingProvider> | null = null;
+function getProvider(): Promise<ErasureCodingProvider> {
+  if (!providerPromise) providerPromise = createDefaultErasureCodingProvider();
+  return providerPromise;
+}
+
+/** Signs and submits an Aptos transaction through the connected wallet. */
+export type SignAndSubmit = (
+  payload: InputGenerateTransactionPayloadData
+) => Promise<{ hash: string }>;
 
 /** Classify raw errors into structured UploadError */
 export function classifyError(e: unknown): UploadError {
@@ -82,37 +90,60 @@ export function errorToUserMessage(err: UploadError): string {
 }
 
 /**
- * Create a minimal Account object for the Shelby SDK.
- * The private key is unused — actual signing is handled by signChallengeHandler.
- */
-export function createMinimalAccount(
-  address: string,
-  publicKeyHex: string
-): Account {
-  return Account.fromPrivateKeyAndAddress({
-    privateKey: new Ed25519PrivateKey("0x" + "00".repeat(32)),
-    address,
-  });
-}
-
-/**
- * Upload encrypted note data to Shelby using wallet for signing.
+ * Upload encrypted note data to Shelby.
+ *
+ * The Shelby SDK's `client.upload()` expects a local `Account` (private key in
+ * hand) to sign the on-chain registration and the storage auth challenge — that
+ * model is for server/CLI use and cannot work with a browser wallet, which never
+ * exposes its private key. So we orchestrate the two steps the wallet way:
+ *
+ *   1. Register the blob on-chain. We build the `register_blob` payload and have
+ *      the connected wallet sign + submit it (the wallet pays gas + ShelbyUSD).
+ *   2. Upload the bytes via `rpc.putBlob` — the unauthenticated multipart path,
+ *      which needs no signature because the on-chain registration (with the
+ *      blob's merkle root) is what authorizes and validates the upload.
  */
 export async function uploadEncryptedBlob(params: {
   data: Uint8Array;
   blobName: string;
-  account: Account;
+  accountAddress: string;
+  signAndSubmit: SignAndSubmit;
   ttlDays?: number;
 }): Promise<void> {
   const c = getShelbyClient();
+  const account = AccountAddress.fromString(params.accountAddress);
   const expirationMicros =
     Date.now() * 1000 + (params.ttlDays ?? 365) * 24 * 60 * 60 * 1_000_000;
 
-  await c.upload({
-    blobData: params.data,
-    signer: params.account,
+  // Skip on-chain registration if the blob already exists (idempotent retry).
+  const existing = await c.coordination.getBlobMetadata({
+    account,
+    name: params.blobName,
+  });
+  if (!existing) {
+    const provider = await getProvider();
+    const commitments = await generateCommitments(provider, params.data);
+    const payload = ShelbyBlobClient.createRegisterBlobPayload({
+      account,
+      blobName: params.blobName,
+      blobSize: params.data.length,
+      blobMerkleRoot: commitments.blob_merkle_root,
+      numChunksets: commitments.chunkset_commitments.length,
+      expirationMicros,
+      encoding: defaultErasureCodingConfig().enumIndex,
+    });
+    const { hash } = await params.signAndSubmit(payload);
+    // waitForIndexer so the blob is queryable via getAccountBlobs right after.
+    await c.aptos.waitForTransaction({
+      transactionHash: hash,
+      options: { waitForIndexer: true },
+    });
+  }
+
+  await c.rpc.putBlob({
+    account,
     blobName: params.blobName,
-    expirationMicros,
+    blobData: params.data,
   });
 }
 
@@ -124,12 +155,14 @@ export async function listAccountBlobs(accountAddress: string) {
   const blobs = await c.coordination.getAccountBlobs({
     account: AccountAddress.fromString(accountAddress),
   });
+  // `b.name` is the full on-chain key (e.g. "@<addr>/shelbysafe-..."); the
+  // suffix is what putBlob/getBlob and our "shelbysafe-" filter operate on.
   return blobs.map((b) => ({
-    name: b.name,
+    name: b.blobNameSuffix,
     size: Number(b.size),
     expirationMicros: Number(b.expirationMicros),
     /** Last 8 chars of blob name as short ID */
-    shortId: b.name.slice(-8),
+    shortId: b.blobNameSuffix.slice(-8),
   }));
 }
 
